@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model request {
+  id          Int      @id @default(autoincrement())
+  name        String
+  email       String
+  phone       String
+  material    String
+  description String
+  createdAt   DateTime @default(now())
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  orders    Order[]
+  uploads   Upload[]
+}
+
+model Order {
+  id         String   @id @default(cuid())
+  status     String   @default("PENDING")
+  totalPrice Float
+  createdAt  DateTime @default(now())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+model Upload {
+  id        String   @id @default(cuid())
+  fileUrl   String
+  fileType  String
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+}
