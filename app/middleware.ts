@@ -1,21 +1,14 @@
-import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
+import { withAuth } from "next-auth/middleware"
 
-export function middleware(request: NextRequest) {
-  if (request.nextUrl.pathname.startsWith("/admin")) {
-    const auth = request.headers.get("authorization")
-    if (auth !== `Basic ${btoa("admin:mpg3d2026")}`) {
-      return new NextResponse("Zugriff verweigert", {
-        status: 401,
-        headers: {
-          "WWW-Authenticate": 'Basic realm="Admin"',
-        },
-      })
-    }
-  }
-  return NextResponse.next()
-}
+export default withAuth({
+  callbacks: {
+    authorized: ({ token, req }) => {
+      if (req.nextUrl.pathname.startsWith("/admin")) {
+        return token?.role === "ADMIN"
+      }
+      return true
+    },
+  },
+})
 
-export const config = {
-  matcher: ["/admin/:path*"],
-}
+export const config = { matcher: ["/admin/:path*"] }
