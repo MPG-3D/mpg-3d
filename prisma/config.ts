@@ -1,15 +1,2 @@
-import "dotenv/config"
-import { defineConfig, env } from "prisma/config"
-
-export default defineConfig({
-  schema: "prisma/schema.prisma",
-
-  migrations: {
-    path: "prisma/migrations",
-  },
-
-
-  datasource: {
-    url: env("DATABASE_URL"),
-  },
-})
+// Diese Datei wird nicht mehr benötigt in Prisma v5
+export {}
