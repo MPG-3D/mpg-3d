@@ -11,15 +11,7 @@ export default async function AdminPage() {
       <p className="text-gray-400 mb-8">{bestellungen.length} Bestellungen gesamt</p>
 
       <div className="space-y-4">
-        {bestellungen.map((b: {
-          id: string
-          name: string
-          email: string
-          phone: string
-          material: string
-          description: string
-          createdAt: Date
-        }) => (
+        {bestellungen.map((b) => (
           <div key={b.id} className="bg-gray-900 border border-blue-500/20 rounded-2xl p-6">
             <div className="flex justify-between items-start mb-4">
               <div>
