@@ -4,11 +4,20 @@ import { useState } from "react"
 import Image from "next/image"
 import Upload from "./components/Upload"
 
-import {
-  SignInButton,
-  SignUpButton,
-  UserButton,
-} from "@clerk/nextjs"
+const MATERIALIEN = [
+  { name: "PLA Standard", preis: 15 },
+  { name: "PLA+ Premium", preis: 20 },
+  { name: "PETG", preis: 22 },
+  { name: "ABS", preis: 25 },
+  { name: "TPU Flexibel", preis: 30 },
+  { name: "Resin", preis: 35 },
+]
+
+const RABATTCODES: Record<string, number> = {
+  "MPG10": 10,
+  "SOMMER20": 20,
+  "VIP50": 50,
+}
 
 export default function Home() {
   const [name, setName] = useState("")
@@ -17,118 +26,133 @@ export default function Home() {
   const [material, setMaterial] = useState("PLA")
   const [description, setDescription] = useState("")
   const [loading, setLoading] = useState(false)
-  const [cartCount, setCartCount] = useState(0)
-  const [cartTotal, setCartTotal] = useState(0)
   const [mobileMenu, setMobileMenu] = useState(false)
+  const [darkMode, setDarkMode] = useState(true)
+  const [rabattCode, setRabattCode] = useState("")
+  const [rabattProzent, setRabattProzent] = useState(0)
+  const [rabattFehler, setRabattFehler] = useState("")
   const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const [sprache, setSprache] = useState<"de" | "en">("de")
+
+  const [cart, setCart] = useState<{ title: string; price: number; menge: number }[]>([])
+
+  const cartCount = cart.reduce((sum, item) => sum + item.menge, 0)
+  const cartRaw = cart.reduce((sum, item) => sum + item.price * item.menge, 0)
+  const cartTotal = cartRaw * (1 - rabattProzent / 100)
+
+  const addToCart = (product: { title: string; price: number }) => {
+    setCart(prev => {
+      const existing = prev.find(i => i.title === product.title)
+      if (existing) {
+        return prev.map(i => i.title === product.title ? { ...i, menge: i.menge + 1 } : i)
+      }
+      return [...prev, { ...product, menge: 1 }]
+    })
+  }
+
+  const removeFromCart = (title: string) => {
+    setCart(prev => prev.filter(i => i.title !== title))
+  }
+
+  const pruefeRabatt = () => {
+    const code = rabattCode.toUpperCase()
+    if (RABATTCODES[code]) {
+      setRabattProzent(RABATTCODES[code])
+      setRabattFehler("")
+    } else {
+      setRabattFehler(sprache === "de" ? "Ungültiger Code" : "Invalid code")
+      setRabattProzent(0)
+    }
+  }
 
   const sendRequest = async () => {
-    setLoading(true)
     try {
+      setLoading(true)
       const response = await fetch("/api/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, phone, material, description }),
       })
       if (!response.ok) throw new Error("Fehler beim Senden")
-      alert("Anfrage erfolgreich gesendet!")
-      setName("")
-      setEmail("")
-      setPhone("")
-      setDescription("")
-      setMaterial("PLA")
-    } catch (err) {
-      console.error(err)
-      alert("Fehler beim Senden")
+      alert(sprache === "de" ? "Anfrage erfolgreich gesendet!" : "Request sent successfully!")
+      setName(""); setEmail(""); setPhone(""); setDescription(""); setMaterial("PLA")
+    } catch (error) {
+      console.error(error)
+      alert(sprache === "de" ? "Fehler beim Senden" : "Error sending request")
     } finally {
       setLoading(false)
     }
   }
 
   const handleCheckout = async () => {
-    if (cartCount === 0) return
+    if (cart.length === 0) return
     setCheckoutLoading(true)
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: cartTotal,
-          orderId: Date.now(),
-        }),
+        body: JSON.stringify({ amount: cartTotal, orderId: Date.now() }),
       })
       const data = await res.json()
       if (data.url) window.location.href = data.url
     } catch (error) {
-      alert("Fehler beim Bezahlen. Bitte versuche es erneut.")
+      alert(sprache === "de" ? "Fehler beim Bezahlen." : "Payment error.")
     } finally {
       setCheckoutLoading(false)
     }
   }
 
   const products = [
-    { image: "/logo.png", title: "Gaming Zubehör", price: 19, category: "Gaming" },
-    { image: "/logo.png", title: "Custom Figuren", price: 29, category: "Figuren" },
-    { image: "/logo.png", title: "RGB Setup", price: 39, category: "RGB" },
+    { image: "/logo.png", title: "Gaming Zubehör", price: 19, category: "Gaming", desc: sprache === "de" ? "Controller Ständer, RGB Zubehör" : "Controller stands, RGB accessories" },
+    { image: "/logo.png", title: "Custom Figuren", price: 29, category: "Figuren", desc: sprache === "de" ? "Sammlermodelle & individuelle Designs" : "Collector models & custom designs" },
+    { image: "/logo.png", title: "RGB Setup", price: 39, category: "RGB", desc: sprache === "de" ? "Individuelle RGB Dekorationen" : "Custom RGB decorations" },
+    { image: "/logo.png", title: "Express Druck", price: 49, category: "Express", desc: sprache === "de" ? "24h Lieferung, höchste Priorität" : "24h delivery, highest priority" },
+    { image: "/logo.png", title: "Design Service", price: 59, category: "Service", desc: sprache === "de" ? "Wir erstellen dein 3D Modell" : "We create your 3D model" },
+    { image: "/logo.png", title: "Bulk Bestellung", price: 99, category: "Bulk", desc: sprache === "de" ? "Ab 10 Stück, günstiger Preis" : "From 10 pieces, better price" },
   ]
 
-  return (
-    <main className="min-h-screen bg-black text-white overflow-hidden">
+  const bg = darkMode ? "bg-black text-white" : "bg-white text-black"
+  const card = darkMode ? "bg-gradient-to-b from-blue-950/40 to-black border border-blue-500/10" : "bg-gradient-to-b from-blue-100 to-white border border-blue-200"
+  const input = darkMode ? "bg-black border border-blue-500/10 text-white" : "bg-gray-100 border border-blue-200 text-black"
+  const header = darkMode ? "bg-black/80 border-blue-500/10" : "bg-white/80 border-blue-200"
 
-      {/* BACKGROUND */}
+  return (
+    <main className={`min-h-screen ${bg} overflow-hidden transition-colors duration-300`}>
+
       <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.18),transparent_50%)]" />
 
       {/* NAVBAR */}
-      <header className="fixed top-0 left-0 w-full z-50 border-b border-blue-500/10 bg-black/80 backdrop-blur-xl">
+      <header className={`fixed top-0 left-0 w-full z-50 border-b ${header} backdrop-blur-xl`}>
         <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
-
-          {/* LOGO */}
           <div className="flex items-center gap-4">
-            <Image
-              src="/logo.png"
-              alt="MPG-3D"
-              width={65}
-              height={65}
-              priority
-              className="drop-shadow-[0_0_30px_rgba(37,99,235,0.7)]"
-            />
+            <Image src="/logo.png" alt="MPG-3D" width={65} height={65} priority className="drop-shadow-[0_0_30px_rgba(37,99,235,0.7)]" />
             <div>
               <h1 className="text-3xl font-black tracking-tight">MPG-3D</h1>
               <p className="text-blue-400 text-sm">Premium 3D Druck</p>
             </div>
           </div>
 
-          {/* DESKTOP NAV */}
-          <nav className="hidden md:flex items-center gap-8 text-gray-300">
+          <nav className="hidden md:flex items-center gap-6">
             <a href="#services" className="hover:text-blue-400 transition">Services</a>
             <a href="#upload" className="hover:text-blue-400 transition">Upload</a>
             <a href="#shop" className="hover:text-blue-400 transition">Shop</a>
             <a href="#kontakt" className="hover:text-blue-400 transition">Kontakt</a>
 
-            {/* AUTH */}
-            <div className="flex items-center gap-4">
-              <SignInButton mode="modal">
-                <button className="bg-white text-black px-5 py-3 rounded-xl font-bold hover:bg-gray-200 transition">
-                  Login
-                </button>
-              </SignInButton>
-              <SignUpButton mode="modal">
-                <button className="bg-blue-600 px-5 py-3 rounded-xl font-bold hover:bg-blue-500 transition">
-                  Registrieren
-                </button>
-              </SignUpButton>
-              <UserButton />
-            </div>
+            {/* Sprache */}
+            <button onClick={() => setSprache(s => s === "de" ? "en" : "de")} className="px-3 py-1 rounded-lg border border-blue-500/30 text-sm font-bold hover:bg-blue-600/20 transition">
+              {sprache === "de" ? "🇬🇧 EN" : "🇩🇪 DE"}
+            </button>
 
-            {/* CART */}
+            {/* Dark Mode */}
+            <button onClick={() => setDarkMode(d => !d)} className="px-3 py-1 rounded-lg border border-blue-500/30 text-sm font-bold hover:bg-blue-600/20 transition">
+              {darkMode ? "☀️" : "🌙"}
+            </button>
+
+            {/* Warenkorb */}
             <button
               onClick={handleCheckout}
               disabled={cartCount === 0 || checkoutLoading}
-              className={`relative transition px-5 py-3 rounded-xl ${
-                cartCount > 0
-                  ? "bg-blue-600 hover:bg-blue-500 cursor-pointer"
-                  : "bg-gray-800 cursor-not-allowed opacity-50"
-              }`}
+              className={`relative transition px-5 py-3 rounded-xl ${cartCount > 0 ? "bg-blue-600 hover:bg-blue-500" : "bg-gray-800 opacity-50 cursor-not-allowed"}`}
             >
               {checkoutLoading ? "⏳" : "🛒"}
               {cartCount > 0 && (
@@ -139,18 +163,13 @@ export default function Home() {
             </button>
           </nav>
 
-          {/* MOBILE BUTTON */}
-          <button
-            onClick={() => setMobileMenu(!mobileMenu)}
-            className="md:hidden text-2xl"
-          >
+          <button onClick={() => setMobileMenu(!mobileMenu)} className="md:hidden text-2xl">
             {mobileMenu ? "✕" : "☰"}
           </button>
         </div>
 
-        {/* MOBILE MENU */}
         {mobileMenu && (
-          <div className="md:hidden bg-black border-t border-blue-500/10 px-6 py-8 flex flex-col gap-6 text-lg">
+          <div className={`md:hidden border-t ${darkMode ? "bg-black border-blue-500/10" : "bg-white border-blue-200"} px-6 py-8 flex flex-col gap-6 text-lg`}>
             <a href="#services">Services</a>
             <a href="#upload">Upload</a>
             <a href="#shop">Shop</a>
@@ -164,47 +183,89 @@ export default function Home() {
         <div className="absolute left-1/2 top-0 -translate-x-1/2 w-[1000px] h-[1000px] bg-blue-600/10 blur-[200px] rounded-full" />
         <div className="relative max-w-6xl mx-auto text-center">
           <div className="flex justify-center mb-12">
-            <Image
-              src="/logo.png"
-              alt="MPG-3D"
-              width={180}
-              height={180}
-              priority
-              className="drop-shadow-[0_0_60px_rgba(37,99,235,0.8)]"
-            />
+            <Image src="/logo.png" alt="MPG-3D" width={180} height={180} priority className="drop-shadow-[0_0_60px_rgba(37,99,235,0.8)]" />
           </div>
           <h1 className="text-7xl md:text-9xl font-black tracking-tight leading-none">MPG-3D</h1>
-          <p className="text-gray-300 text-2xl md:text-3xl max-w-5xl mx-auto mt-10 leading-relaxed">
-            Professioneller 3D-Druck Service aus Deutschland.
+          <p className={`text-2xl md:text-3xl max-w-5xl mx-auto mt-10 leading-relaxed ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+            {sprache === "de" ? "Professioneller 3D-Druck Service aus Deutschland." : "Professional 3D printing service from Germany."}
           </p>
+          <div className="flex justify-center gap-6 mt-12">
+            <a href="#shop" className="bg-blue-600 hover:bg-blue-500 transition px-8 py-4 rounded-2xl font-black text-lg">
+              {sprache === "de" ? "Jetzt bestellen" : "Order now"}
+            </a>
+            <a href="#upload" className={`border border-blue-500/30 hover:bg-blue-600/20 transition px-8 py-4 rounded-2xl font-black text-lg`}>
+              {sprache === "de" ? "Datei hochladen" : "Upload file"}
+            </a>
+          </div>
         </div>
       </section>
 
       {/* SERVICES */}
       <section id="services" className="py-32 px-6 border-t border-blue-500/10">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-6xl font-black text-center mb-24">MPG-3D Services</h2>
+          <h2 className="text-6xl font-black text-center mb-24">
+            {sprache === "de" ? "MPG-3D Services" : "MPG-3D Services"}
+          </h2>
           <div className="grid md:grid-cols-3 gap-10">
-            <div className="bg-gradient-to-b from-blue-950/40 to-black border border-blue-500/10 rounded-3xl p-10">
-              <div className="text-6xl mb-8">🎮</div>
-              <h3 className="text-3xl font-black mb-6">Gaming Zubehör</h3>
-              <p className="text-gray-400 text-lg leading-relaxed">
-                Individuelle Controller Ständer, RGB Zubehör und Gaming Dekorationen.
-              </p>
-            </div>
-            <div className="bg-gradient-to-b from-blue-950/40 to-black border border-blue-500/10 rounded-3xl p-10">
-              <div className="text-6xl mb-8">🧸</div>
-              <h3 className="text-3xl font-black mb-6">Figuren & Modelle</h3>
-              <p className="text-gray-400 text-lg leading-relaxed">
-                Sammlermodelle und individuelle Designs.
-              </p>
-            </div>
-            <div className="bg-gradient-to-b from-blue-950/40 to-black border border-blue-500/10 rounded-3xl p-10">
-              <div className="text-6xl mb-8">🛠️</div>
-              <h3 className="text-3xl font-black mb-6">Design Service</h3>
-              <p className="text-gray-400 text-lg leading-relaxed">
-                Keine STL-Datei? MPG-3D erstellt dein Modell.
-              </p>
+            {[
+              { emoji: "🎮", title: sprache === "de" ? "Gaming Zubehör" : "Gaming Accessories", desc: sprache === "de" ? "Controller Ständer, RGB Zubehör und Gaming Dekorationen." : "Controller stands, RGB accessories and gaming decorations." },
+              { emoji: "🧸", title: sprache === "de" ? "Figuren & Modelle" : "Figures & Models", desc: sprache === "de" ? "Sammlermodelle und individuelle Designs." : "Collector models and custom designs." },
+              { emoji: "🛠️", title: sprache === "de" ? "Design Service" : "Design Service", desc: sprache === "de" ? "Keine STL-Datei? MPG-3D erstellt dein Modell." : "No STL file? MPG-3D creates your model." },
+              { emoji: "⚡", title: sprache === "de" ? "Express Druck" : "Express Print", desc: sprache === "de" ? "24h Lieferung für dringende Bestellungen." : "24h delivery for urgent orders." },
+              { emoji: "📦", title: sprache === "de" ? "Bulk Bestellungen" : "Bulk Orders", desc: sprache === "de" ? "Günstige Preise ab 10 Stück." : "Better prices from 10 pieces." },
+              { emoji: "🏢", title: sprache === "de" ? "Firmenkunden" : "Business Clients", desc: sprache === "de" ? "API & White-Label Lösungen für Unternehmen." : "API & white-label solutions for businesses." },
+            ].map((s, i) => (
+              <div key={i} className={`${card} rounded-3xl p-10`}>
+                <div className="text-6xl mb-8">{s.emoji}</div>
+                <h3 className="text-3xl font-black mb-6">{s.title}</h3>
+                <p className={`text-lg leading-relaxed ${darkMode ? "text-gray-400" : "text-gray-600"}`}>{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* MATERIALKOSTEN-RECHNER */}
+      <section className="py-32 px-6 border-t border-blue-500/10">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-5xl font-black text-center mb-16">
+            {sprache === "de" ? "💰 Preisrechner" : "💰 Price Calculator"}
+          </h2>
+          <div className={`${card} rounded-3xl p-10`}>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div>
+                <label className={`block mb-3 font-bold ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  {sprache === "de" ? "Material" : "Material"}
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  {MATERIALIEN.map(m => (
+                    <button
+                      key={m.name}
+                      onClick={() => setMaterial(m.name)}
+                      className={`p-3 rounded-xl border text-sm font-bold transition ${material === m.name ? "border-blue-500 bg-blue-600/20" : `border-blue-500/20 ${darkMode ? "hover:border-blue-500/50" : "hover:border-blue-400"}`}`}
+                    >
+                      {m.name}<br />
+                      <span className="text-blue-400">{m.preis}€</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex flex-col justify-center">
+                <div className={`${darkMode ? "bg-black/50" : "bg-gray-100"} rounded-2xl p-8 text-center`}>
+                  <p className={`text-lg mb-2 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+                    {sprache === "de" ? "Geschätzter Preis" : "Estimated price"}
+                  </p>
+                  <p className="text-5xl font-black text-blue-400">
+                    {MATERIALIEN.find(m => m.name === material)?.preis ?? 15}€
+                  </p>
+                  <p className={`text-sm mt-2 ${darkMode ? "text-gray-500" : "text-gray-500"}`}>
+                    {sprache === "de" ? "inkl. Druck & Versand" : "incl. print & shipping"}
+                  </p>
+                </div>
+                <a href="#upload" className="mt-6 bg-blue-600 hover:bg-blue-500 transition py-4 rounded-2xl font-black text-center">
+                  {sprache === "de" ? "Jetzt bestellen →" : "Order now →"}
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -216,51 +277,78 @@ export default function Home() {
           <h2 className="text-6xl font-black text-center mb-24">Shop</h2>
           <div className="grid md:grid-cols-3 gap-10">
             {products.map((product, index) => (
-              <div
-                key={index}
-                className="bg-gradient-to-b from-blue-950/40 to-black border border-blue-500/10 rounded-3xl overflow-hidden"
-              >
-                <div className="relative h-80">
-                  <Image
-                    src={product.image}
-                    alt={product.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    className="object-cover"
-                  />
+              <div key={index} className={`${card} rounded-3xl overflow-hidden`}>
+                <div className="relative h-64">
+                  <Image src={product.image} alt={product.title} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
+                  <div className="absolute top-4 right-4 bg-blue-600 text-white text-xs font-black px-3 py-1 rounded-full">
+                    {product.category}
+                  </div>
                 </div>
                 <div className="p-8">
-                  <div className="text-blue-400 mb-3">{product.category}</div>
-                  <h3 className="text-3xl font-black">{product.title}</h3>
-                  <div className="text-2xl font-black mt-4">{product.price}€</div>
+                  <h3 className="text-2xl font-black">{product.title}</h3>
+                  <p className={`text-sm mt-2 mb-4 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>{product.desc}</p>
+                  <div className="text-2xl font-black text-blue-400 mt-2">{product.price}€</div>
                   <button
-                    onClick={() => {
-                      setCartCount(cartCount + 1)
-                      setCartTotal(cartTotal + product.price)
-                    }}
-                    className="mt-8 w-full bg-blue-600 hover:bg-blue-500 transition py-4 rounded-2xl font-black"
+                    onClick={() => addToCart(product)}
+                    className="mt-6 w-full bg-blue-600 hover:bg-blue-500 transition py-4 rounded-2xl font-black"
                   >
-                    In Warenkorb
+                    {sprache === "de" ? "In Warenkorb" : "Add to cart"}
                   </button>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* CART SUMMARY */}
-          {cartCount > 0 && (
-            <div className="mt-16 bg-gradient-to-b from-blue-950/40 to-black border border-blue-500/20 rounded-3xl p-8 flex items-center justify-between">
-              <div>
-                <p className="text-gray-400">{cartCount} Artikel im Warenkorb</p>
-                <p className="text-3xl font-black">{cartTotal}€</p>
+          {/* WARENKORB */}
+          {cart.length > 0 && (
+            <div className={`mt-16 ${card} rounded-3xl p-8`}>
+              <h3 className="text-3xl font-black mb-6">🛒 {sprache === "de" ? "Warenkorb" : "Cart"}</h3>
+              {cart.map((item, i) => (
+                <div key={i} className="flex justify-between items-center py-3 border-b border-blue-500/10">
+                  <div>
+                    <p className="font-bold">{item.title}</p>
+                    <p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+                      {item.menge}x × {item.price}€
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <p className="font-black">{item.price * item.menge}€</p>
+                    <button onClick={() => removeFromCart(item.title)} className="text-red-400 hover:text-red-300 text-xl">✕</button>
+                  </div>
+                </div>
+              ))}
+
+              {/* Rabattcode */}
+              <div className="mt-6 flex gap-3">
+                <input
+                  type="text"
+                  placeholder={sprache === "de" ? "Rabattcode" : "Discount code"}
+                  value={rabattCode}
+                  onChange={(e) => setRabattCode(e.target.value)}
+                  className={`${input} p-3 rounded-xl flex-1`}
+                />
+                <button onClick={pruefeRabatt} className="bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-xl font-bold transition">
+                  {sprache === "de" ? "Einlösen" : "Apply"}
+                </button>
               </div>
-              <button
-                onClick={handleCheckout}
-                disabled={checkoutLoading}
-                className="bg-blue-600 hover:bg-blue-500 transition px-10 py-4 rounded-2xl font-black text-xl"
-              >
-                {checkoutLoading ? "Wird verarbeitet..." : `Jetzt bezahlen — ${cartTotal}€`}
-              </button>
+              {rabattFehler && <p className="text-red-400 text-sm mt-2">{rabattFehler}</p>}
+              {rabattProzent > 0 && <p className="text-green-400 text-sm mt-2">✓ {rabattProzent}% {sprache === "de" ? "Rabatt aktiviert!" : "discount activated!"}</p>}
+
+              <div className="mt-6 flex justify-between items-center">
+                <div>
+                  {rabattProzent > 0 && (
+                    <p className={`line-through ${darkMode ? "text-gray-500" : "text-gray-400"}`}>{cartRaw.toFixed(2)}€</p>
+                  )}
+                  <p className="text-3xl font-black">{cartTotal.toFixed(2)}€</p>
+                </div>
+                <button
+                  onClick={handleCheckout}
+                  disabled={checkoutLoading}
+                  className="bg-blue-600 hover:bg-blue-500 transition px-10 py-4 rounded-2xl font-black text-xl"
+                >
+                  {checkoutLoading ? "⏳..." : `${sprache === "de" ? "Jetzt bezahlen" : "Pay now"} — ${cartTotal.toFixed(2)}€`}
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -270,58 +358,31 @@ export default function Home() {
       <section id="upload" className="border-t border-blue-500/10 py-32 px-6">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-6xl font-black">Auftrag erstellen</h2>
+            <h2 className="text-6xl font-black">
+              {sprache === "de" ? "Auftrag erstellen" : "Create order"}
+            </h2>
           </div>
-          <div className="bg-gradient-to-b from-blue-950/30 to-black border border-blue-500/10 rounded-[40px] p-10 md:p-16">
+          <div className={`${card} rounded-[40px] p-10 md:p-16`}>
             <div className="grid md:grid-cols-2 gap-8">
-              <input
-                type="text"
-                placeholder="Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="bg-black border border-blue-500/10 p-5 rounded-2xl"
-              />
-              <input
-                type="email"
-                placeholder="E-Mail"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="bg-black border border-blue-500/10 p-5 rounded-2xl"
-              />
+              <input type="text" placeholder={sprache === "de" ? "Name" : "Name"} value={name} onChange={(e) => setName(e.target.value)} className={`${input} p-5 rounded-2xl`} />
+              <input type="email" placeholder="E-Mail" value={email} onChange={(e) => setEmail(e.target.value)} className={`${input} p-5 rounded-2xl`} />
             </div>
-            <input
-              type="text"
-              placeholder="Telefonnummer"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="bg-black border border-blue-500/10 p-5 rounded-2xl w-full mt-8"
-            />
-            <select
-              value={material}
-              onChange={(e) => setMaterial(e.target.value)}
-              className="bg-black border border-blue-500/10 p-5 rounded-2xl w-full mt-8"
-            >
-              <option value="PLA">PLA</option>
-              <option value="PETG">PETG</option>
-              <option value="ABS">ABS</option>
-              <option value="Resin">Resin</option>
+            <input type="text" placeholder={sprache === "de" ? "Telefon" : "Phone"} value={phone} onChange={(e) => setPhone(e.target.value)} className={`${input} p-5 rounded-2xl w-full mt-8`} />
+            <select value={material} onChange={(e) => setMaterial(e.target.value)} className={`${input} p-5 rounded-2xl w-full mt-8`}>
+              {MATERIALIEN.map(m => <option key={m.name}>{m.name}</option>)}
             </select>
             <textarea
-              placeholder="Beschreibe dein Wunschprodukt..."
+              placeholder={sprache === "de" ? "Beschreibe dein Wunschprodukt..." : "Describe your product..."}
               rows={8}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="bg-black border border-blue-500/10 p-5 rounded-2xl w-full mt-8"
+              className={`${input} p-5 rounded-2xl w-full mt-8`}
             />
             <div className="mt-12">
               <Upload />
             </div>
-            <button
-              onClick={sendRequest}
-              disabled={loading}
-              className="mt-12 w-full bg-blue-600 hover:bg-blue-500 transition py-6 rounded-2xl font-black text-xl"
-            >
-              {loading ? "Sende Anfrage..." : "Auftrag absenden"}
+            <button onClick={sendRequest} disabled={loading} className="mt-12 w-full bg-blue-600 hover:bg-blue-500 transition py-6 rounded-2xl font-black text-xl">
+              {loading ? (sprache === "de" ? "Sende Anfrage..." : "Sending...") : (sprache === "de" ? "Auftrag absenden" : "Submit order")}
             </button>
           </div>
         </div>
@@ -331,8 +392,17 @@ export default function Home() {
       <footer id="kontakt" className="border-t border-blue-500/10 py-20 px-6">
         <div className="max-w-7xl mx-auto text-center">
           <h3 className="text-4xl font-black mb-4">MPG-3D</h3>
-          <p className="text-gray-400 text-lg">Premium 3D Druck Service aus Deutschland</p>
-          <div className="mt-10 text-gray-500">© 2026 MPG-3D — Alle Rechte vorbehalten</div>
+          <p className={`text-lg ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+            {sprache === "de" ? "Premium 3D Druck Service aus Deutschland" : "Premium 3D printing service from Germany"}
+          </p>
+          <div className="flex justify-center gap-6 mt-8">
+            <a href="mailto:info@mpg-3d.de" className="text-blue-400 hover:text-blue-300 transition">info@mpg-3d.de</a>
+            <span className={darkMode ? "text-gray-600" : "text-gray-400"}>|</span>
+            <a href="#" className="text-blue-400 hover:text-blue-300 transition">Instagram</a>
+            <span className={darkMode ? "text-gray-600" : "text-gray-400"}>|</span>
+            <a href="#" className="text-blue-400 hover:text-blue-300 transition">Discord</a>
+          </div>
+          <div className={`mt-10 ${darkMode ? "text-gray-500" : "text-gray-400"}`}>© 2026 MPG-3D — Alle Rechte vorbehalten</div>
         </div>
       </footer>
 
