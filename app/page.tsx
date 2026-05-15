@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import Upload from "./components/Upload"
+import { useSession, signOut } from "next-auth/react"
 
 const MATERIALIEN = [
   { name: "PLA Standard", preis: 15 },
@@ -20,6 +21,7 @@ const RABATTCODES: Record<string, number> = {
 }
 
 export default function Home() {
+  const { data: session } = useSession()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
@@ -161,6 +163,27 @@ export default function Home() {
                 </span>
               )}
             </button>
+
+            {/* Login / Logout */}
+            {session ? (
+              <div className="flex items-center gap-3">
+                {(session.user as any)?.role === "ADMIN" && (
+                  <a href="/admin" className="px-3 py-1 rounded-lg border border-blue-500/30 text-sm font-bold hover:bg-blue-600/20 transition">
+                    Admin
+                  </a>
+                )}
+                <button
+                  onClick={() => signOut()}
+                  className="px-4 py-2 rounded-xl bg-red-600/20 border border-red-500/30 text-red-400 text-sm font-bold hover:bg-red-600/40 transition"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <a href="/login" className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition">
+                Login
+              </a>
+            )}
           </nav>
 
           <button onClick={() => setMobileMenu(!mobileMenu)} className="md:hidden text-2xl">
