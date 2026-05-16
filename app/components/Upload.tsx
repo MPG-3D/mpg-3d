@@ -17,30 +17,45 @@ export default function Upload() {
   const [dateiName, setDateiName] = useState<string | null>(null)
   const [material, setMaterial] = useState(MATERIALIEN[0])
   const [menge, setMenge] = useState(1)
-  const [ladeVorgang, setLadeVorgang] = useState(false)
+  const [ladeVorgang, setLadeVorgang] = useState<"stripe" | "paypal" | null>(null)
 
   const basisPreis = 15
   const materialPreis = material.preis * 100
   const gesamtPreis = (basisPreis + materialPreis) * menge
 
-  const handleBezahlen = async () => {
+  const handleStripe = async () => {
     if (!dateiUrl) return
-    setLadeVorgang(true)
+    setLadeVorgang("stripe")
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: gesamtPreis,
-          orderId: Date.now(),
-        }),
+        body: JSON.stringify({ amount: gesamtPreis, orderId: Date.now() }),
       })
       const data = await res.json()
       if (data.url) window.location.href = data.url
-    } catch (error) {
+    } catch {
       alert("Fehler beim Bezahlen. Bitte versuche es erneut.")
     } finally {
-      setLadeVorgang(false)
+      setLadeVorgang(null)
+    }
+  }
+
+  const handlePayPal = async () => {
+    if (!dateiUrl) return
+    setLadeVorgang("paypal")
+    try {
+      const res = await fetch("/api/paypal/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: gesamtPreis, orderId: Date.now() }),
+      })
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+    } catch {
+      alert("Fehler beim PayPal-Bezahlen. Bitte versuche es erneut.")
+    } finally {
+      setLadeVorgang(null)
     }
   }
 
@@ -152,17 +167,45 @@ export default function Upload() {
             <span>{gesamtPreis.toFixed(2)} €</span>
           </div>
         </div>
-        <button
-          onClick={handleBezahlen}
-          disabled={!dateiUrl || ladeVorgang}
-          className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
-            dateiUrl && !ladeVorgang
-              ? "bg-blue-600 hover:bg-blue-500 text-white"
-              : "bg-gray-700 text-gray-500 cursor-not-allowed"
-          }`}
-        >
-          {ladeVorgang ? "Wird verarbeitet..." : !dateiUrl ? "Zuerst Datei hochladen" : `Jetzt bezahlen — ${gesamtPreis.toFixed(2)} €`}
-        </button>
+
+        <div className="space-y-3">
+          {/* Stripe / Kreditkarte */}
+          <button
+            onClick={handleStripe}
+            disabled={!dateiUrl || ladeVorgang !== null}
+            className={`w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 ${
+              dateiUrl && !ladeVorgang
+                ? "bg-blue-600 hover:bg-blue-500 text-white"
+                : "bg-gray-700 text-gray-500 cursor-not-allowed"
+            }`}
+          >
+            {ladeVorgang === "stripe" ? "Wird verarbeitet..." : (
+              <>
+                <span>💳</span>
+                <span>{!dateiUrl ? "Zuerst Datei hochladen" : `Kreditkarte — ${gesamtPreis.toFixed(2)} €`}</span>
+              </>
+            )}
+          </button>
+
+          {/* PayPal */}
+          <button
+            onClick={handlePayPal}
+            disabled={!dateiUrl || ladeVorgang !== null}
+            className={`w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 ${
+              dateiUrl && !ladeVorgang
+                ? "bg-[#FFC439] hover:bg-[#f0b429] text-[#003087]"
+                : "bg-gray-700 text-gray-500 cursor-not-allowed"
+            }`}
+          >
+            {ladeVorgang === "paypal" ? "Wird verarbeitet..." : (
+              <>
+                <span className="font-black text-[#003087]">Pay</span>
+                <span className="font-black text-[#009cde]">Pal</span>
+                {dateiUrl && <span className="text-[#003087]">— {gesamtPreis.toFixed(2)} €</span>}
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   )
