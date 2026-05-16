@@ -38,6 +38,15 @@ export default function Home() {
   const [sprache, setSprache] = useState<"de" | "en">("de")
 
   const [cart, setCart] = useState<{ title: string; price: number; menge: number }[]>([])
+  const [wishlist, setWishlist] = useState<string[]>([])
+
+  const toggleWishlist = (title: string) => {
+    setWishlist(prev => {
+      const next = prev.includes(title) ? prev.filter(t => t !== title) : [...prev, title]
+      localStorage.setItem("mpg3d-wishlist", JSON.stringify(next))
+      return next
+    })
+  }
 
   const cartCount = cart.reduce((sum, item) => sum + item.menge, 0)
   const cartRaw = cart.reduce((sum, item) => sum + item.price * item.menge, 0)
@@ -329,6 +338,13 @@ export default function Home() {
                   <div className="absolute top-4 right-4 bg-blue-600 text-white text-xs font-black px-3 py-1 rounded-full">
                     {product.category}
                   </div>
+                  <button
+                    onClick={() => toggleWishlist(product.title)}
+                    className="absolute top-4 left-4 text-2xl transition hover:scale-110"
+                    title={wishlist.includes(product.title) ? "Von Wunschliste entfernen" : "Zur Wunschliste"}
+                  >
+                    {wishlist.includes(product.title) ? "❤️" : "🤍"}
+                  </button>
                 </div>
                 <div className="p-8">
                   <h3 className="text-2xl font-black">{product.title}</h3>
@@ -416,6 +432,37 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      {/* WUNSCHLISTE */}
+      {wishlist.length > 0 && (
+        <section className="border-t border-blue-500/10 py-16 px-6">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-4xl font-black mb-10">❤️ {sprache === "de" ? "Meine Wunschliste" : "My Wishlist"}</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              {products.filter(p => wishlist.includes(p.title)).map((product, index) => (
+                <div key={index} className={`${card} rounded-2xl p-6 flex items-center gap-4`}>
+                  <div className="flex-1">
+                    <p className="font-black text-lg">{product.title}</p>
+                    <p className="text-blue-400 font-bold">{product.price}€</p>
+                  </div>
+                  <button
+                    onClick={() => addToCart(product)}
+                    className="bg-blue-600 hover:bg-blue-500 transition px-4 py-2 rounded-xl font-bold text-sm"
+                  >
+                    {sprache === "de" ? "Kaufen" : "Buy"}
+                  </button>
+                  <button
+                    onClick={() => toggleWishlist(product.title)}
+                    className="text-red-400 hover:text-red-300 text-xl transition"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* UPLOAD */}
       <section id="upload" className="border-t border-blue-500/10 py-32 px-6">
