@@ -3,6 +3,9 @@
 import { useState } from "react"
 import { UploadButton } from "@uploadthing/react"
 import type { OurFileRouter } from "@/app/api/uploadthing/core"
+import dynamic from "next/dynamic"
+
+const STLViewer = dynamic(() => import("./STLViewer"), { ssr: false })
 
 const MATERIALIEN = [
   { name: "PLA Standard", preis: 0.05 },
@@ -81,18 +84,26 @@ export default function Upload() {
             }}
           />
         ) : (
-          <div className="flex items-center gap-3 bg-green-900/30 border border-green-700 rounded-xl p-4">
-            <span className="text-green-400 text-2xl">✓</span>
-            <div>
-              <p className="text-green-400 font-semibold">Datei hochgeladen!</p>
-              <p className="text-gray-400 text-sm">{dateiName}</p>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 bg-green-900/30 border border-green-700 rounded-xl p-4">
+              <span className="text-green-400 text-2xl">✓</span>
+              <div>
+                <p className="text-green-400 font-semibold">Datei hochgeladen!</p>
+                <p className="text-gray-400 text-sm">{dateiName}</p>
+              </div>
+              <button
+                onClick={() => { setDateiUrl(null); setDateiName(null) }}
+                className="ml-auto text-gray-500 hover:text-white text-sm"
+              >
+                Ändern
+              </button>
             </div>
-            <button
-              onClick={() => { setDateiUrl(null); setDateiName(null) }}
-              className="ml-auto text-gray-500 hover:text-white text-sm"
-            >
-              Ändern
-            </button>
+            {dateiName?.toLowerCase().endsWith(".stl") && (
+              <div>
+                <p className="text-gray-400 text-sm mb-2 font-semibold">3D Vorschau</p>
+                <STLViewer url={dateiUrl!} />
+              </div>
+            )}
           </div>
         )}
       </div>

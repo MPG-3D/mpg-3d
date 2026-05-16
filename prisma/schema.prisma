@@ -79,3 +79,12 @@ model Upload {
   userId    String
   user      User     @relation(fields: [userId], references: [id])
 }
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  name      String
+  rating    Int
+  comment   String
+  createdAt DateTime @default(now())
+}

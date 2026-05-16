@@ -4,6 +4,9 @@ import { useState } from "react"
 import Image from "next/image"
 import Upload from "./components/Upload"
 import { useSession, signOut } from "next-auth/react"
+import dynamic from "next/dynamic"
+
+const Reviews = dynamic(() => import("./components/Reviews"), { ssr: false })
 
 const MATERIALIEN = [
   { name: "PLA Standard", preis: 15 },
@@ -199,6 +202,9 @@ export default function Home() {
             {/* Login / Logout */}
             {session ? (
               <div className="flex items-center gap-3">
+                <a href="/dashboard" className="px-3 py-1 rounded-lg border border-blue-500/30 text-sm font-bold hover:bg-blue-600/20 transition">
+                  Mein Konto
+                </a>
                 {(session.user as any)?.role === "ADMIN" && (
                   <a href="/admin" className="px-3 py-1 rounded-lg border border-blue-500/30 text-sm font-bold hover:bg-blue-600/20 transition">
                     Admin
@@ -356,6 +362,7 @@ export default function Home() {
                   >
                     {sprache === "de" ? "In Warenkorb" : "Add to cart"}
                   </button>
+                  <Reviews productId={product.title.toLowerCase().replace(/\s+/g, "-")} productName={product.title} />
                 </div>
               </div>
             ))}
