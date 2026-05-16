@@ -170,18 +170,17 @@ export default function Home() {
             </button>
 
             {/* Warenkorb */}
-            <button
-              onClick={handleCheckout}
-              disabled={cartCount === 0 || checkoutLoading}
-              className={`relative transition px-5 py-3 rounded-xl ${cartCount > 0 ? "bg-blue-600 hover:bg-blue-500" : "bg-gray-800 opacity-50 cursor-not-allowed"}`}
+            <a
+              href="#shop"
+              className={`relative transition px-5 py-3 rounded-xl ${cartCount > 0 ? "bg-blue-600 hover:bg-blue-500" : "bg-gray-800 opacity-50 cursor-not-allowed pointer-events-none"}`}
             >
-              {checkoutLoading ? "⏳" : "🛒"}
+              🛒
               {cartCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-white text-black text-xs font-black rounded-full w-6 h-6 flex items-center justify-center">
                   {cartCount}
                 </span>
               )}
-            </button>
+            </a>
 
             {/* Login / Logout */}
             {session ? (
