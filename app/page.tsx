@@ -46,15 +46,20 @@ export default function Home() {
   const addToCart = (product: { title: string; price: number }) => {
     setCart(prev => {
       const existing = prev.find(i => i.title === product.title)
-      if (existing) {
-        return prev.map(i => i.title === product.title ? { ...i, menge: i.menge + 1 } : i)
-      }
-      return [...prev, { ...product, menge: 1 }]
+      const next = existing
+        ? prev.map(i => i.title === product.title ? { ...i, menge: i.menge + 1 } : i)
+        : [...prev, { ...product, menge: 1 }]
+      localStorage.setItem("mpg3d-cart", JSON.stringify(next))
+      return next
     })
   }
 
   const removeFromCart = (title: string) => {
-    setCart(prev => prev.filter(i => i.title !== title))
+    setCart(prev => {
+      const next = prev.filter(i => i.title !== title)
+      localStorage.setItem("mpg3d-cart", JSON.stringify(next))
+      return next
+    })
   }
 
   const pruefeRabatt = () => {
@@ -171,7 +176,7 @@ export default function Home() {
 
             {/* Warenkorb */}
             <a
-              href="#shop"
+              href={cartCount > 0 ? "/checkout" : "#shop"}
               className={`relative transition px-5 py-3 rounded-xl ${cartCount > 0 ? "bg-blue-600 hover:bg-blue-500" : "bg-gray-800 hover:bg-gray-700"}`}
             >
               🛒
