@@ -172,7 +172,7 @@ export default function Home() {
             {/* Warenkorb */}
             <a
               href="#shop"
-              className={`relative transition px-5 py-3 rounded-xl ${cartCount > 0 ? "bg-blue-600 hover:bg-blue-500" : "bg-gray-800 opacity-50 cursor-not-allowed pointer-events-none"}`}
+              className={`relative transition px-5 py-3 rounded-xl ${cartCount > 0 ? "bg-blue-600 hover:bg-blue-500" : "bg-gray-800 hover:bg-gray-700"}`}
             >
               🛒
               {cartCount > 0 && (
