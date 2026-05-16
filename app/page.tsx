@@ -34,6 +34,7 @@ export default function Home() {
   const [rabattProzent, setRabattProzent] = useState(0)
   const [rabattFehler, setRabattFehler] = useState("")
   const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const [paypalLoading, setPaypalLoading] = useState(false)
   const [sprache, setSprache] = useState<"de" | "en">("de")
 
   const [cart, setCart] = useState<{ title: string; price: number; menge: number }[]>([])
@@ -101,6 +102,24 @@ export default function Home() {
       alert(sprache === "de" ? "Fehler beim Bezahlen." : "Payment error.")
     } finally {
       setCheckoutLoading(false)
+    }
+  }
+
+  const handlePayPalCheckout = async () => {
+    if (cart.length === 0) return
+    setPaypalLoading(true)
+    try {
+      const res = await fetch("/api/paypal/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: cartTotal, orderId: Date.now() }),
+      })
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+    } catch (error) {
+      alert(sprache === "de" ? "Fehler beim PayPal-Bezahlen." : "PayPal payment error.")
+    } finally {
+      setPaypalLoading(false)
     }
   }
 
@@ -357,20 +376,37 @@ export default function Home() {
               {rabattFehler && <p className="text-red-400 text-sm mt-2">{rabattFehler}</p>}
               {rabattProzent > 0 && <p className="text-green-400 text-sm mt-2">✓ {rabattProzent}% {sprache === "de" ? "Rabatt aktiviert!" : "discount activated!"}</p>}
 
-              <div className="mt-6 flex justify-between items-center">
-                <div>
-                  {rabattProzent > 0 && (
-                    <p className={`line-through ${darkMode ? "text-gray-500" : "text-gray-400"}`}>{cartRaw.toFixed(2)}€</p>
-                  )}
-                  <p className="text-3xl font-black">{cartTotal.toFixed(2)}€</p>
+              <div className="mt-6 flex flex-col gap-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    {rabattProzent > 0 && (
+                      <p className={`line-through ${darkMode ? "text-gray-500" : "text-gray-400"}`}>{cartRaw.toFixed(2)}€</p>
+                    )}
+                    <p className="text-3xl font-black">{cartTotal.toFixed(2)}€</p>
+                  </div>
                 </div>
-                <button
-                  onClick={handleCheckout}
-                  disabled={checkoutLoading}
-                  className="bg-blue-600 hover:bg-blue-500 transition px-10 py-4 rounded-2xl font-black text-xl"
-                >
-                  {checkoutLoading ? "⏳..." : `${sprache === "de" ? "Jetzt bezahlen" : "Pay now"} — ${cartTotal.toFixed(2)}€`}
-                </button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={handleCheckout}
+                    disabled={checkoutLoading}
+                    className="flex-1 bg-blue-600 hover:bg-blue-500 transition px-8 py-4 rounded-2xl font-black text-lg flex items-center justify-center gap-2"
+                  >
+                    {checkoutLoading === true ? "⏳..." : `💳 ${sprache === "de" ? "Kreditkarte" : "Credit card"} — ${cartTotal.toFixed(2)}€`}
+                  </button>
+                  <button
+                    onClick={handlePayPalCheckout}
+                    disabled={paypalLoading}
+                    className="flex-1 bg-[#FFC439] hover:bg-[#f0b429] transition px-8 py-4 rounded-2xl font-black text-lg flex items-center justify-center gap-1"
+                  >
+                    {paypalLoading ? "⏳..." : (
+                      <>
+                        <span className="font-black text-[#003087]">Pay</span>
+                        <span className="font-black text-[#009cde]">Pal</span>
+                        <span className="text-[#003087] ml-1">— {cartTotal.toFixed(2)}€</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           )}
