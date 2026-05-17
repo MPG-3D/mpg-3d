@@ -59,6 +59,12 @@ model Request {
   phone       String
   material    String
   description String
+
+  volume String?
+weight String?
+printHours String?
+price String?
+
   createdAt   DateTime @default(now())
 }
 
@@ -86,5 +92,15 @@ model Review {
   name      String
   rating    Int
   comment   String
+  createdAt DateTime @default(now())
+}
+
+model Ticket {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  status    String   @default("OPEN")
   createdAt DateTime @default(now())
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import Stripe from "stripe"
+import { sendDiscordWebhook } from "@/lib/discord"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
@@ -35,6 +36,16 @@ export async function POST(req: Request) {
       success_url: `${process.env.NEXT_PUBLIC_URL}/success`,
       cancel_url: `${process.env.NEXT_PUBLIC_URL}/cancel`,
     })
+
+    await sendDiscordWebhook("", [{
+      title: "💳 Neue Zahlung — MPG-3D",
+      color: 0x22c55e,
+      fields: [
+        { name: "💶 Betrag", value: `${amount.toFixed(2)} €`, inline: true },
+        { name: "🧾 Bestellung", value: `#${orderId}`, inline: true },
+      ],
+      timestamp: new Date().toISOString(),
+    }])
 
     return NextResponse.json({ url: session.url })
   } catch (error) {
