@@ -141,12 +141,46 @@ export default function Home() {
   }
 
   const products = [
-    { image: "/logo.png", title: "Gaming Zubehör", price: 19, category: "Gaming", desc: sprache === "de" ? "Controller Ständer, RGB Zubehör" : "Controller stands, RGB accessories" },
-    { image: "/logo.png", title: "Custom Figuren", price: 29, category: "Figuren", desc: sprache === "de" ? "Sammlermodelle & individuelle Designs" : "Collector models & custom designs" },
-    { image: "/logo.png", title: "RGB Setup", price: 39, category: "RGB", desc: sprache === "de" ? "Individuelle RGB Dekorationen" : "Custom RGB decorations" },
-    { image: "/logo.png", title: "Express Druck", price: 49, category: "Express", desc: sprache === "de" ? "24h Lieferung, höchste Priorität" : "24h delivery, highest priority" },
-    { image: "/logo.png", title: "Design Service", price: 59, category: "Service", desc: sprache === "de" ? "Wir erstellen dein 3D Modell" : "We create your 3D model" },
-    { image: "/logo.png", title: "Bulk Bestellung", price: 99, category: "Bulk", desc: sprache === "de" ? "Ab 10 Stück, günstiger Preis" : "From 10 pieces, better price" },
+    { image: "/logo.png", title: "Controller Stand", price: 19, category: "Gaming", desc: sprache === "de" ? "Passend für PS5 & Xbox, stabiler Standfuß" : "Fits PS5 & Xbox, stable base stand" },
+    { image: "/logo.png", title: "Headset Holder", price: 22, category: "Gaming", desc: sprache === "de" ? "Wandmontierter Headset-Halter aus PETG" : "Wall-mounted headset holder in PETG" },
+    { image: "/logo.png", title: "Joy-Con Rail", price: 14, category: "Gaming", desc: sprache === "de" ? "Ersatz-Schiene für Nintendo Switch" : "Replacement rail for Nintendo Switch" },
+    { image: "/logo.png", title: "PS5 Lüftergitter", price: 18, category: "Gaming", desc: sprache === "de" ? "Schutzgitter für PS5 Lüftungsschlitze" : "Protective grille for PS5 vents" },
+    { image: "/logo.png", title: "Xbox Akku Cover", price: 15, category: "Gaming", desc: sprache === "de" ? "Ersatz-Akkudeckel für Xbox Controller" : "Replacement battery cover for Xbox controller" },
+    { image: "/logo.png", title: "Tastatur Füße", price: 12, category: "Setup", desc: sprache === "de" ? "Rutschfeste Erhöhungsfüße für Tastaturen" : "Non-slip elevation feet for keyboards" },
+    { image: "/logo.png", title: "Maus Bungee", price: 16, category: "Setup", desc: sprache === "de" ? "Kabelführung für Gaming-Mäuse" : "Cable management for gaming mice" },
+    { image: "/logo.png", title: "Kabel Clips", price: 10, category: "Setup", desc: sprache === "de" ? "Ordnung auf dem Schreibtisch" : "Cable organization for your desk" },
+    { image: "/logo.png", title: "Monitor Halter", price: 24, category: "Setup", desc: sprache === "de" ? "Stabile Tischhalterung für Monitore" : "Stable desk mount for monitors" },
+    { image: "/logo.png", title: "RGB Halterung", price: 19, category: "Setup", desc: sprache === "de" ? "LED-Streifen Halterung für Monitor-Rückseite" : "LED strip holder for monitor back" },
+    { image: "/logo.png", title: "Schrank Clip", price: 10, category: "Haushalt", desc: sprache === "de" ? "Clip zum Nachrüsten von Schranktüren" : "Retrofit clip for cabinet doors" },
+    { image: "/logo.png", title: "Kühlschrank Griff", price: 15, category: "Haushalt", desc: sprache === "de" ? "Ersatzgriff für Kühlschranktüren" : "Replacement handle for fridge doors" },
+    { image: "/logo.png", title: "Staubsauger Adapter", price: 18, category: "Haushalt", desc: sprache === "de" ? "Adapter für verschiedene Sauger-Aufsätze" : "Adapter for various vacuum attachments" },
+    { image: "/logo.png", title: "Waschmaschinen Knopf", price: 14, category: "Haushalt", desc: sprache === "de" ? "Ersatz-Drehknopf für Waschmaschinen" : "Replacement rotary knob for washing machines" },
+    { image: "/logo.png", title: "Fenster Clip", price: 9, category: "Haushalt", desc: sprache === "de" ? "Halteclip für Fensterrahmen" : "Mounting clip for window frames" },
+    { image: "/logo.png", title: "Duschhalter", price: 16, category: "Haushalt", desc: sprache === "de" ? "Wandhalterung für Duschkopf oder Seife" : "Wall mount for shower head or soap" },
+    { image: "/logo.png", title: "Türstopper", price: 12, category: "Haushalt", desc: sprache === "de" ? "Runder Türstopper, bodenständig" : "Round door stopper, floor-standing" },
+    { image: "/logo.png", title: "Haken System", price: 14, category: "Haushalt", desc: sprache === "de" ? "Modulare Wandhaken für Küche & Flur" : "Modular wall hooks for kitchen & hallway" },
+    { image: "/logo.png", title: "Möbel Verbinder", price: 13, category: "Haushalt", desc: sprache === "de" ? "Verbindungsstück für Möbelplatten" : "Connector piece for furniture boards" },
+    { image: "/logo.png", title: "Schubladen Rolle", price: 11, category: "Haushalt", desc: sprache === "de" ? "Ersatzrolle für Schubladensysteme" : "Replacement roller for drawer systems" },
+    { image: "/logo.png", title: "Getränkehalter Clip", price: 16, category: "Auto", desc: sprache === "de" ? "Clip-Getränkehalter für Armlehne" : "Clip-on cup holder for armrest" },
+    { image: "/logo.png", title: "Lüftungsgitter Clip", price: 9, category: "Auto", desc: sprache === "de" ? "Befestigungsclip für Kfz-Lüftungsgitter" : "Mounting clip for car AC vents" },
+    { image: "/logo.png", title: "Handyhalter Adapter", price: 15, category: "Auto", desc: sprache === "de" ? "Universeller Handy-Adapter fürs Auto" : "Universal phone adapter for car mount" },
+    { image: "/logo.png", title: "Schlüssel Gehäuse", price: 14, category: "Auto", desc: sprache === "de" ? "Ersatz-Schlüsselgehäuse für Kfz" : "Replacement key housing for vehicles" },
+    { image: "/logo.png", title: "Armlehnen Clip", price: 12, category: "Auto", desc: sprache === "de" ? "Clip für Armlehnen-Verkleidungen" : "Clip for armrest panels" },
+    { image: "/logo.png", title: "Kabelhalter Auto", price: 10, category: "Auto", desc: sprache === "de" ? "Kabelclip für Fahrzeuginnenraum" : "Cable clip for vehicle interior" },
+    { image: "/logo.png", title: "Kofferraum Haken", price: 14, category: "Auto", desc: sprache === "de" ? "Einkaufstaschen-Haken für Kofferraum" : "Shopping bag hook for car trunk" },
+    { image: "/logo.png", title: "Innenraum Abdeckung", price: 18, category: "Auto", desc: sprache === "de" ? "Ersatz-Abdeckung für Kfz-Innenraum" : "Replacement cover for car interior" },
+    { image: "/logo.png", title: "Spiegel Clip", price: 9, category: "Auto", desc: sprache === "de" ? "Befestigungsclip für Außenspiegel" : "Fixing clip for exterior mirrors" },
+    { image: "/logo.png", title: "Sonnenblenden Halter", price: 11, category: "Auto", desc: sprache === "de" ? "Halter für Sonnenschutz-Zubehör" : "Holder for sun visor accessories" },
+    { image: "/logo.png", title: "GPU Halter", price: 24, category: "PC", desc: sprache === "de" ? "Anti-Sag Stütze für schwere Grafikkarten" : "Anti-sag support for heavy GPUs" },
+    { image: "/logo.png", title: "SSD Halter", price: 18, category: "PC", desc: sprache === "de" ? "Halterung für 2,5 Zoll SSDs" : "Bracket for 2.5 inch SSDs" },
+    { image: "/logo.png", title: "Lüfter Spacer", price: 16, category: "PC", desc: sprache === "de" ? "Abstandshalter für 120mm Gehäuselüfter" : "Spacer for 120mm case fans" },
+    { image: "/logo.png", title: "Kabelkamm", price: 15, category: "PC", desc: sprache === "de" ? "Kabelführung für ordentliches PC-Inneres" : "Cable comb for clean PC build" },
+    { image: "/logo.png", title: "Raspberry Pi Case", price: 22, category: "PC", desc: sprache === "de" ? "Gehäuse für Raspberry Pi 4/5" : "Case for Raspberry Pi 4/5" },
+    { image: "/logo.png", title: "Mini PC Halter", price: 25, category: "PC", desc: sprache === "de" ? "VESA-Wandhalterung für Mini-PCs" : "VESA wall mount for mini PCs" },
+    { image: "/logo.png", title: "USB Halter", price: 12, category: "PC", desc: sprache === "de" ? "Halterung für USB-Hubs am Monitor" : "USB hub holder for monitor" },
+    { image: "/logo.png", title: "Monitor Clip", price: 10, category: "PC", desc: sprache === "de" ? "Kabelclip für Monitor-Rückseite" : "Cable clip for monitor back" },
+    { image: "/logo.png", title: "Netzteil Halter", price: 22, category: "PC", desc: sprache === "de" ? "Modular PSU Kabelhalter" : "Modular PSU cable holder" },
+    { image: "/logo.png", title: "Router Wandhalter", price: 20, category: "PC", desc: sprache === "de" ? "Wandhalterung für WLAN-Router" : "Wall mount for WiFi router" },
   ]
 
   const bg = darkMode ? "bg-black text-white" : "bg-white text-black"
@@ -339,8 +373,10 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-10">
             {products.map((product, index) => (
               <div key={index} className={`${card} rounded-3xl overflow-hidden`}>
-                <div className="relative h-64">
-                  <Image src={product.image} alt={product.title} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
+                <div className="relative h-40 flex items-center justify-center bg-gradient-to-br from-blue-900/30 to-black/60">
+                  <span className="text-6xl">
+                    {product.category === "Gaming" ? "🎮" : product.category === "Setup" ? "🖥️" : product.category === "Haushalt" ? "🏠" : product.category === "Auto" ? "🚗" : "💻"}
+                  </span>
                   <div className="absolute top-4 right-4 bg-blue-600 text-white text-xs font-black px-3 py-1 rounded-full">
                     {product.category}
                   </div>
