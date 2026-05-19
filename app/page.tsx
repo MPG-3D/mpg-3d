@@ -373,10 +373,24 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-10">
             {products.map((product, index) => (
               <div key={index} className={`${card} rounded-3xl overflow-hidden`}>
-                <div className="relative h-40 flex items-center justify-center bg-gradient-to-br from-blue-900/30 to-black/60">
-                  <span className="text-6xl">
-                    {product.category === "Gaming" ? "🎮" : product.category === "Setup" ? "🖥️" : product.category === "Haushalt" ? "🏠" : product.category === "Auto" ? "🚗" : "💻"}
-                  </span>
+                <div className="relative h-48 overflow-hidden">
+                  <Image
+                    src={
+                      product.category === "Gaming"
+                        ? "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=400&q=80"
+                        : product.category === "Setup"
+                        ? "https://images.unsplash.com/photo-1593640408182-31c228f06c69?w=400&q=80"
+                        : product.category === "Haushalt"
+                        ? "https://images.unsplash.com/photo-1556909114-44e3e70034e2?w=400&q=80"
+                        : product.category === "Auto"
+                        ? "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400&q=80"
+                        : "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&q=80"
+                    }
+                    alt={product.title}
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute top-4 right-4 bg-blue-600 text-white text-xs font-black px-3 py-1 rounded-full">
                     {product.category}
                   </div>
