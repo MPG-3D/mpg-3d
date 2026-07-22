@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import Upload from "./components/Upload"
 import { useSession, signOut } from "next-auth/react"
 import dynamic from "next/dynamic"
@@ -24,6 +25,7 @@ const RABATTCODES: Record<string, number> = {
 }
 
 export default function Home() {
+  const router = useRouter()
   const { data: session } = useSession()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -407,6 +409,12 @@ export default function Home() {
                     >
                       {sprache === "de" ? "In Warenkorb" : "Add to cart"}
                     </button>
+                    <button
+                      onClick={() => router.push(`/product/${product.title.toLowerCase().replace(/\s+/g, "-")}`)}
+                      className="mt-3 w-full border border-blue-500/30 hover:bg-blue-600/20 transition py-3 rounded-2xl font-bold text-sm"
+                    >
+                      {sprache === "de" ? "📋 Produktinfo" : "📋 Product Info"}
+                    </button>
                     <Reviews productId={product.title.toLowerCase().replace(/\s+/g, "-")} productName={product.title} />
                   </div>
                 </div>
@@ -448,6 +456,12 @@ export default function Home() {
                       className="mt-6 w-full bg-blue-600 hover:bg-blue-500 transition py-4 rounded-2xl font-black"
                     >
                       {sprache === "de" ? "In Warenkorb" : "Add to cart"}
+                    </button>
+                    <button
+                      onClick={() => router.push(`/product/${product.title.toLowerCase().replace(/\s+/g, "-")}`)}
+                      className="mt-3 w-full border border-blue-500/30 hover:bg-blue-600/20 transition py-3 rounded-2xl font-bold text-sm"
+                    >
+                      {sprache === "de" ? "📋 Produktinfo" : "📋 Product Info"}
                     </button>
                     <Reviews productId={product.title.toLowerCase().replace(/\s+/g, "-")} productName={product.title} />
                   </div>
@@ -491,6 +505,12 @@ export default function Home() {
                     >
                       {sprache === "de" ? "In Warenkorb" : "Add to cart"}
                     </button>
+                    <button
+                      onClick={() => router.push(`/product/${product.title.toLowerCase().replace(/\s+/g, "-")}`)}
+                      className="mt-3 w-full border border-blue-500/30 hover:bg-blue-600/20 transition py-3 rounded-2xl font-bold text-sm"
+                    >
+                      {sprache === "de" ? "📋 Produktinfo" : "📋 Product Info"}
+                    </button>
                     <Reviews productId={product.title.toLowerCase().replace(/\s+/g, "-")} productName={product.title} />
                   </div>
                 </div>
@@ -533,6 +553,12 @@ export default function Home() {
                     >
                       {sprache === "de" ? "In Warenkorb" : "Add to cart"}
                     </button>
+                    <button
+                      onClick={() => router.push(`/product/${product.title.toLowerCase().replace(/\s+/g, "-")}`)}
+                      className="mt-3 w-full border border-blue-500/30 hover:bg-blue-600/20 transition py-3 rounded-2xl font-bold text-sm"
+                    >
+                      {sprache === "de" ? "📋 Produktinfo" : "📋 Product Info"}
+                    </button>
                     <Reviews productId={product.title.toLowerCase().replace(/\s+/g, "-")} productName={product.title} />
                   </div>
                 </div>
@@ -574,6 +600,12 @@ export default function Home() {
                       className="mt-6 w-full bg-blue-600 hover:bg-blue-500 transition py-4 rounded-2xl font-black"
                     >
                       {sprache === "de" ? "In Warenkorb" : "Add to cart"}
+                    </button>
+                    <button
+                      onClick={() => router.push(`/product/${product.title.toLowerCase().replace(/\s+/g, "-")}`)}
+                      className="mt-3 w-full border border-blue-500/30 hover:bg-blue-600/20 transition py-3 rounded-2xl font-bold text-sm"
+                    >
+                      {sprache === "de" ? "📋 Produktinfo" : "📋 Product Info"}
                     </button>
                     <Reviews productId={product.title.toLowerCase().replace(/\s+/g, "-")} productName={product.title} />
                   </div>
