@@ -295,30 +295,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SERVICES */}
-      <section id="services" className="py-32 px-6 border-t border-blue-500/10">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-6xl font-black text-center mb-24">
-            {sprache === "de" ? "MPG-3D Services" : "MPG-3D Services"}
-          </h2>
-          <div className="grid md:grid-cols-3 gap-10">
-            {[
-              { emoji: "🎮", title: sprache === "de" ? "Gaming Zubehör" : "Gaming Accessories", desc: sprache === "de" ? "Controller Ständer, RGB Zubehör und Gaming Dekorationen." : "Controller stands, RGB accessories and gaming decorations." },
-              { emoji: "🧸", title: sprache === "de" ? "Figuren & Modelle" : "Figures & Models", desc: sprache === "de" ? "Sammlermodelle und individuelle Designs." : "Collector models and custom designs." },
-              { emoji: "🛠️", title: sprache === "de" ? "Design Service" : "Design Service", desc: sprache === "de" ? "Keine STL-Datei? MPG-3D erstellt dein Modell." : "No STL file? MPG-3D creates your model." },
-              { emoji: "⚡", title: sprache === "de" ? "Express Druck" : "Express Print", desc: sprache === "de" ? "24h Lieferung für dringende Bestellungen." : "24h delivery for urgent orders." },
-              { emoji: "📦", title: sprache === "de" ? "Bulk Bestellungen" : "Bulk Orders", desc: sprache === "de" ? "Günstige Preise ab 10 Stück." : "Better prices from 10 pieces." },
-              { emoji: "🏢", title: sprache === "de" ? "Firmenkunden" : "Business Clients", desc: sprache === "de" ? "API & White-Label Lösungen für Unternehmen." : "API & white-label solutions for businesses." },
-            ].map((s, i) => (
-              <div key={i} className={`${card} rounded-3xl p-10`}>
-                <div className="text-6xl mb-8">{s.emoji}</div>
-                <h3 className="text-3xl font-black mb-6">{s.title}</h3>
-                <p className={`text-lg leading-relaxed ${darkMode ? "text-gray-400" : "text-gray-600"}`}>{s.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* MATERIALKOSTEN-RECHNER */}
       <section className="py-32 px-6 border-t border-blue-500/10">
@@ -366,56 +342,248 @@ export default function Home() {
         </div>
       </section>
 
+      {/* SERVICES */}
+      <section id="services" className="py-32 px-6 border-t border-blue-500/10">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-6xl font-black text-center mb-24">
+            {sprache === "de" ? "MPG-3D Services" : "MPG-3D Services"}
+          </h2>
+          <div className="grid md:grid-cols-3 gap-10">
+            {[
+              { emoji: "🎮", title: sprache === "de" ? "Gaming Zubehör" : "Gaming Accessories", desc: sprache === "de" ? "Controller Ständer, RGB Zubehör und Gaming Dekorationen." : "Controller stands, RGB accessories and gaming decorations." },
+              { emoji: "🧸", title: sprache === "de" ? "Figuren & Modelle" : "Figures & Models", desc: sprache === "de" ? "Sammlermodelle und individuelle Designs." : "Collector models and custom designs." },
+              { emoji: "🛠️", title: sprache === "de" ? "Design Service" : "Design Service", desc: sprache === "de" ? "Keine STL-Datei? MPG-3D erstellt dein Modell." : "No STL file? MPG-3D creates your model." },
+              { emoji: "⚡", title: sprache === "de" ? "Express Druck" : "Express Print", desc: sprache === "de" ? "24h Lieferung für dringende Bestellungen." : "24h delivery for urgent orders." },
+              { emoji: "📦", title: sprache === "de" ? "Bulk Bestellungen" : "Bulk Orders", desc: sprache === "de" ? "Günstige Preise ab 10 Stück." : "Better prices from 10 pieces." },
+              { emoji: "🏢", title: sprache === "de" ? "Firmenkunden" : "Business Clients", desc: sprache === "de" ? "API & White-Label Lösungen für Unternehmen." : "API & white-label solutions for businesses." },
+            ].map((s, i) => (
+              <div key={i} className={`${card} rounded-3xl p-10`}>
+                <div className="text-6xl mb-8">{s.emoji}</div>
+                <h3 className="text-3xl font-black mb-6">{s.title}</h3>
+                <p className={`text-lg leading-relaxed ${darkMode ? "text-gray-400" : "text-gray-600"}`}>{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* SHOP */}
       <section id="shop" className="border-t border-blue-500/10 py-32 px-6">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-6xl font-black text-center mb-24">Shop</h2>
-          <div className="grid md:grid-cols-3 gap-10">
-            {products.map((product, index) => (
-              <div key={index} className={`${card} rounded-3xl overflow-hidden`}>
-                <div className="relative h-48 overflow-hidden">
-                  <Image
-                    src={
-                      product.category === "Gaming"
-                        ? "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=400&q=80"
-                        : product.category === "Setup"
-                        ? "https://images.unsplash.com/photo-1593640408182-31c228f06c69?w=400&q=80"
-                        : product.category === "Haushalt"
-                        ? "https://images.unsplash.com/photo-1556909114-44e3e70034e2?w=400&q=80"
-                        : product.category === "Auto"
-                        ? "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400&q=80"
-                        : "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&q=80"
-                    }
-                    alt={product.title}
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute top-4 right-4 bg-blue-600 text-white text-xs font-black px-3 py-1 rounded-full">
-                    {product.category}
+
+          {/* Controller Stand Featured */}
+          <div className="mb-20">
+            <h3 className="text-4xl font-black mb-10 text-blue-400">🎮 Controller Stand</h3>
+            <div className="grid md:grid-cols-3 gap-10">
+              {products.filter(p => p.title.includes("Controller Stand")).map((product, index) => (
+                <div key={index} className={`${card} rounded-3xl overflow-hidden`}>
+                  <div className="relative h-48 overflow-hidden">
+                    <Image
+                      src="https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=400&q=80"
+                      alt={product.title}
+                      fill
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute top-4 right-4 bg-blue-600 text-white text-xs font-black px-3 py-1 rounded-full">
+                      {product.category}
+                    </div>
+                    <button
+                      onClick={() => toggleWishlist(product.title)}
+                      className="absolute top-4 left-4 text-2xl transition hover:scale-110"
+                      title={wishlist.includes(product.title) ? "Von Wunschliste entfernen" : "Zur Wunschliste"}
+                    >
+                      {wishlist.includes(product.title) ? "❤️" : "🤍"}
+                    </button>
                   </div>
-                  <button
-                    onClick={() => toggleWishlist(product.title)}
-                    className="absolute top-4 left-4 text-2xl transition hover:scale-110"
-                    title={wishlist.includes(product.title) ? "Von Wunschliste entfernen" : "Zur Wunschliste"}
-                  >
-                    {wishlist.includes(product.title) ? "❤️" : "🤍"}
-                  </button>
+                  <div className="p-8">
+                    <h3 className="text-2xl font-black">{product.title}</h3>
+                    <p className={`text-sm mt-2 mb-4 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>{product.desc}</p>
+                    <div className="text-2xl font-black text-blue-400 mt-2">{product.price}€</div>
+                    <button
+                      onClick={() => addToCart(product)}
+                      className="mt-6 w-full bg-blue-600 hover:bg-blue-500 transition py-4 rounded-2xl font-black"
+                    >
+                      {sprache === "de" ? "In Warenkorb" : "Add to cart"}
+                    </button>
+                    <Reviews productId={product.title.toLowerCase().replace(/\s+/g, "-")} productName={product.title} />
+                  </div>
                 </div>
-                <div className="p-8">
-                  <h3 className="text-2xl font-black">{product.title}</h3>
-                  <p className={`text-sm mt-2 mb-4 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>{product.desc}</p>
-                  <div className="text-2xl font-black text-blue-400 mt-2">{product.price}€</div>
-                  <button
-                    onClick={() => addToCart(product)}
-                    className="mt-6 w-full bg-blue-600 hover:bg-blue-500 transition py-4 rounded-2xl font-black"
-                  >
-                    {sprache === "de" ? "In Warenkorb" : "Add to cart"}
-                  </button>
-                  <Reviews productId={product.title.toLowerCase().replace(/\s+/g, "-")} productName={product.title} />
+              ))}
+            </div>
+          </div>
+
+          {/* Gaming */}
+          <div className="mb-20">
+            <h3 className="text-4xl font-black mb-10">🎮 Gaming</h3>
+            <div className="grid md:grid-cols-3 gap-10">
+              {products.filter(p => p.category === "Gaming" && !p.title.includes("Controller Stand")).map((product, index) => (
+                <div key={index} className={`${card} rounded-3xl overflow-hidden`}>
+                  <div className="relative h-48 overflow-hidden">
+                    <Image
+                      src="https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=400&q=80"
+                      alt={product.title}
+                      fill
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute top-4 right-4 bg-blue-600 text-white text-xs font-black px-3 py-1 rounded-full">
+                      {product.category}
+                    </div>
+                    <button
+                      onClick={() => toggleWishlist(product.title)}
+                      className="absolute top-4 left-4 text-2xl transition hover:scale-110"
+                      title={wishlist.includes(product.title) ? "Von Wunschliste entfernen" : "Zur Wunschliste"}
+                    >
+                      {wishlist.includes(product.title) ? "❤️" : "🤍"}
+                    </button>
+                  </div>
+                  <div className="p-8">
+                    <h3 className="text-2xl font-black">{product.title}</h3>
+                    <p className={`text-sm mt-2 mb-4 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>{product.desc}</p>
+                    <div className="text-2xl font-black text-blue-400 mt-2">{product.price}€</div>
+                    <button
+                      onClick={() => addToCart(product)}
+                      className="mt-6 w-full bg-blue-600 hover:bg-blue-500 transition py-4 rounded-2xl font-black"
+                    >
+                      {sprache === "de" ? "In Warenkorb" : "Add to cart"}
+                    </button>
+                    <Reviews productId={product.title.toLowerCase().replace(/\s+/g, "-")} productName={product.title} />
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+          </div>
+
+          {/* Haushalt */}
+          <div className="mb-20">
+            <h3 className="text-4xl font-black mb-10">🏠 Haushalt</h3>
+            <div className="grid md:grid-cols-3 gap-10">
+              {products.filter(p => p.category === "Haushalt").map((product, index) => (
+                <div key={index} className={`${card} rounded-3xl overflow-hidden`}>
+                  <div className="relative h-48 overflow-hidden">
+                    <Image
+                      src="https://images.unsplash.com/photo-1556909114-44e3e70034e2?w=400&q=80"
+                      alt={product.title}
+                      fill
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute top-4 right-4 bg-blue-600 text-white text-xs font-black px-3 py-1 rounded-full">
+                      {product.category}
+                    </div>
+                    <button
+                      onClick={() => toggleWishlist(product.title)}
+                      className="absolute top-4 left-4 text-2xl transition hover:scale-110"
+                      title={wishlist.includes(product.title) ? "Von Wunschliste entfernen" : "Zur Wunschliste"}
+                    >
+                      {wishlist.includes(product.title) ? "❤️" : "🤍"}
+                    </button>
+                  </div>
+                  <div className="p-8">
+                    <h3 className="text-2xl font-black">{product.title}</h3>
+                    <p className={`text-sm mt-2 mb-4 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>{product.desc}</p>
+                    <div className="text-2xl font-black text-blue-400 mt-2">{product.price}€</div>
+                    <button
+                      onClick={() => addToCart(product)}
+                      className="mt-6 w-full bg-blue-600 hover:bg-blue-500 transition py-4 rounded-2xl font-black"
+                    >
+                      {sprache === "de" ? "In Warenkorb" : "Add to cart"}
+                    </button>
+                    <Reviews productId={product.title.toLowerCase().replace(/\s+/g, "-")} productName={product.title} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Auto */}
+          <div className="mb-20">
+            <h3 className="text-4xl font-black mb-10">🚗 Auto</h3>
+            <div className="grid md:grid-cols-3 gap-10">
+              {products.filter(p => p.category === "Auto").map((product, index) => (
+                <div key={index} className={`${card} rounded-3xl overflow-hidden`}>
+                  <div className="relative h-48 overflow-hidden">
+                    <Image
+                      src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400&q=80"
+                      alt={product.title}
+                      fill
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute top-4 right-4 bg-blue-600 text-white text-xs font-black px-3 py-1 rounded-full">
+                      {product.category}
+                    </div>
+                    <button
+                      onClick={() => toggleWishlist(product.title)}
+                      className="absolute top-4 left-4 text-2xl transition hover:scale-110"
+                      title={wishlist.includes(product.title) ? "Von Wunschliste entfernen" : "Zur Wunschliste"}
+                    >
+                      {wishlist.includes(product.title) ? "❤️" : "🤍"}
+                    </button>
+                  </div>
+                  <div className="p-8">
+                    <h3 className="text-2xl font-black">{product.title}</h3>
+                    <p className={`text-sm mt-2 mb-4 ${darkMode ? "text-gray-400" : "text-gray-600"}}>{product.desc}</p>
+                    <div className="text-2xl font-black text-blue-400 mt-2">{product.price}€</div>
+                    <button
+                      onClick={() => addToCart(product)}
+                      className="mt-6 w-full bg-blue-600 hover:bg-blue-500 transition py-4 rounded-2xl font-black"
+                    >
+                      {sprache === "de" ? "In Warenkorb" : "Add to cart"}
+                    </button>
+                    <Reviews productId={product.title.toLowerCase().replace(/\s+/g, "-")} productName={product.title} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Setup & PC (Restliche Kategorien) */}
+          <div className="mb-20">
+            <h3 className="text-4xl font-black mb-10">⚙️ Setup & PC</h3>
+            <div className="grid md:grid-cols-3 gap-10">
+              {products.filter(p => p.category === "Setup" || p.category === "PC").map((product, index) => (
+                <div key={index} className={`${card} rounded-3xl overflow-hidden`}>
+                  <div className="relative h-48 overflow-hidden">
+                    <Image
+                      src={
+                        product.category === "Setup"
+                          ? "https://images.unsplash.com/photo-1593640408182-31c228f06c69?w=400&q=80"
+                          : "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&q=80"
+                      }
+                      alt={product.title}
+                      fill
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute top-4 right-4 bg-blue-600 text-white text-xs font-black px-3 py-1 rounded-full">
+                      {product.category}
+                    </div>
+                    <button
+                      onClick={() => toggleWishlist(product.title)}
+                      className="absolute top-4 left-4 text-2xl transition hover:scale-110"
+                      title={wishlist.includes(product.title) ? "Von Wunschliste entfernen" : "Zur Wunschliste"}
+                    >
+                      {wishlist.includes(product.title) ? "❤️" : "🤍"}
+                    </button>
+                  </div>
+                  <div className="p-8">
+                    <h3 className="text-2xl font-black">{product.title}</h3>
+                    <p className={`text-sm mt-2 mb-4 ${darkMode ? "text-gray-400" : "text-gray-600"}}>{product.desc}</p>
+                    <div className="text-2xl font-black text-blue-400 mt-2">{product.price}€</div>
+                    <button
+                      onClick={() => addToCart(product)}
+                      className="mt-6 w-full bg-blue-600 hover:bg-blue-500 transition py-4 rounded-2xl font-black"
+                    >
+                      {sprache === "de" ? "In Warenkorb" : "Add to cart"}
+                    </button>
+                    <Reviews productId={product.title.toLowerCase().replace(/\s+/g, "-")} productName={product.title} />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* WARENKORB */}
