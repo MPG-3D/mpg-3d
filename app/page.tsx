@@ -525,7 +525,7 @@ export default function Home() {
                   </div>
                   <div className="p-8">
                     <h3 className="text-2xl font-black">{product.title}</h3>
-                    <p className={`text-sm mt-2 mb-4 ${darkMode ? "text-gray-400" : "text-gray-600"}}>{product.desc}</p>
+                    <p className={`text-sm mt-2 mb-4 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>{product.desc}</p>
                     <div className="text-2xl font-black text-blue-400 mt-2">{product.price}€</div>
                     <button
                       onClick={() => addToCart(product)}
@@ -540,7 +540,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Setup & PC (Restliche Kategorien) */}
+          {/* Setup & PC */}
           <div className="mb-20">
             <h3 className="text-4xl font-black mb-10">⚙️ Setup & PC</h3>
             <div className="grid md:grid-cols-3 gap-10">
@@ -548,11 +548,7 @@ export default function Home() {
                 <div key={index} className={`${card} rounded-3xl overflow-hidden`}>
                   <div className="relative h-48 overflow-hidden">
                     <Image
-                      src={
-                        product.category === "Setup"
-                          ? "https://images.unsplash.com/photo-1593640408182-31c228f06c69?w=400&q=80"
-                          : "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&q=80"
-                      }
+                      src={product.category === "Setup" ? "https://images.unsplash.com/photo-1593640408182-31c228f06c69?w=400&q=80" : "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&q=80"}
                       alt={product.title}
                       fill
                       className="object-cover"
@@ -571,7 +567,7 @@ export default function Home() {
                   </div>
                   <div className="p-8">
                     <h3 className="text-2xl font-black">{product.title}</h3>
-                    <p className={`text-sm mt-2 mb-4 ${darkMode ? "text-gray-400" : "text-gray-600"}}>{product.desc}</p>
+                    <p className={`text-sm mt-2 mb-4 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>{product.desc}</p>
                     <div className="text-2xl font-black text-blue-400 mt-2">{product.price}€</div>
                     <button
                       onClick={() => addToCart(product)}

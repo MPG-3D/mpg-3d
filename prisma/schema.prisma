@@ -7,6 +7,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum RequestStatus {
+  NEU
+  IN_DRUCK
+  VERSAND
+  ABGESCHLOSSEN
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
 model User {
   id        String    @id @default(cuid())
   email     String    @unique
@@ -53,28 +68,29 @@ model VerificationToken {
 }
 
 model Request {
-  id          Int      @id @default(autoincrement())
+  id          Int           @id @default(autoincrement())
   name        String
   email       String
   phone       String
   material    String
   description String
+  status      RequestStatus @default(NEU)
 
-  volume String?
-weight String?
-printHours String?
-price String?
+  volume    String?
+  weight    String?
+  printHours String?
+  price     String?
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
 model Order {
-  id         String   @id @default(cuid())
-  status     String   @default("PENDING")
+  id         String      @id @default(cuid())
+  status     OrderStatus @default(PENDING)
   totalPrice Float
-  createdAt  DateTime @default(now())
+  createdAt  DateTime    @default(now())
   userId     String
-  user       User     @relation(fields: [userId], references: [id])
+  user       User        @relation(fields: [userId], references: [id])
 }
 
 model Upload {

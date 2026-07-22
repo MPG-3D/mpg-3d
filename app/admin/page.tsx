@@ -1,5 +1,7 @@
 import { prisma } from "@/prisma/lib/prisma"
 
+export const dynamic = "force-dynamic"
+
 export default async function AdminPage() {
   const bestellungen = await prisma.request.findMany({
     orderBy: { createdAt: "desc" },

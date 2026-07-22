@@ -17,6 +17,31 @@ const MATERIALIEN = [
 
 interface Analysis {
   volume: string
+  surfaceArea: string
+  boundingBox: {
+    width: string
+    height: string
+    depth: string
+  }
+  faceCount: number
+  vertexCount: number
+  isManifold: boolean
+  dimensions: {
+    x: string
+    y: string
+    z: string
+  }
+  printTime: {
+    hours: string
+    minutes: string
+    layers: number
+  }
+  supportAnalysis: {
+    needsSupport: boolean
+    overhangArea: string
+    supportVolume: string
+    criticalOverhangs: number
+  }
   weight: string
   printHours: string
   supportNeeded: boolean
@@ -42,13 +67,68 @@ export default function Upload() {
     : ((15 + material.preis * 100) * menge).toFixed(2)
 
   const analyseAnfordern = async () => {
-    if (!dateiSize || !name || !email) {
+    if (!dateiUrl || !name || !email) {
       alert("Bitte Name, Email und STL-Datei angeben.")
       return
     }
     setAnalysing(true)
     try {
-      const res = await fetch("/api/request", {
+      // Zuerst echte STL-Analyse durchführen
+      const stlRes = await fetch("/api/analyze-stl", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileUrl: dateiUrl }),
+      })
+      const stlData = await stlRes.json()
+      
+      if (!stlData.success) {
+        alert(stlData.error || "Fehler bei der STL-Analyse")
+        return
+      }
+
+      const stlAnalysis = stlData.analysis
+      
+      // Berechnungen basierend auf echter Geometrie
+      const volume = parseFloat(stlAnalysis.volume) // mm³
+      const volumeCm3 = volume / 1000 // cm³
+      
+      // Dichte basierend auf Material
+      const densityMap: Record<string, number> = {
+        "PLA Standard": 1.24,
+        "PLA+ Premium": 1.24,
+        PETG: 1.27,
+        ABS: 1.04,
+        "TPU Flexibel": 1.21,
+      }
+      const density = densityMap[material.name] ?? 1.24
+      const weight = volumeCm3 * density // g
+      
+      // Echte Druckzeit aus API nutzen
+      const printHours = parseFloat(stlAnalysis.printTime.hours) + parseFloat(stlAnalysis.printTime.minutes) / 60
+      
+      // Echte Support-Analyse aus API nutzen
+      const supportNeeded = stlAnalysis.supportAnalysis.needsSupport
+      const supportVolume = parseFloat(stlAnalysis.supportAnalysis.supportVolume)
+      
+      // Preisberechnung
+      const materialCost = weight * 0.08
+      const printCost = printHours * 2.5
+      const supportCost = supportNeeded ? (supportVolume * 0.08 + 4) : 0
+      const shipping = 5
+      const totalPrice = materialCost + printCost + supportCost + shipping
+
+      const analysis: Analysis = {
+        ...stlAnalysis,
+        weight: weight.toFixed(2),
+        printHours: printHours.toFixed(1),
+        supportNeeded,
+        price: Math.max(totalPrice, 9.99).toFixed(2),
+      }
+
+      setAnalysis(analysis)
+
+      // Anfrage an Server senden
+      await fetch("/api/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -59,12 +139,14 @@ export default function Upload() {
           description: description || "STL Upload Anfrage",
           fileSize: dateiSize,
           fileUrl: dateiUrl,
+          volume: volumeCm3.toFixed(2),
+          weight: weight.toFixed(2),
+          printHours: printHours.toFixed(1),
+          price: Math.max(totalPrice, 9.99).toFixed(2),
         }),
       })
-      const data = await res.json()
-      if (data.analysis) setAnalysis(data.analysis)
-      else alert(data.error || "Fehler bei der Analyse")
-    } catch {
+    } catch (error) {
+      console.error("Analyse error:", error)
       alert("Fehler bei der Analyse")
     } finally {
       setAnalysing(false)
@@ -219,12 +301,14 @@ export default function Upload() {
 
         {/* Analyse Ergebnis */}
         {analysis && (
-          <div className="mt-6 bg-blue-950/40 border border-blue-500/20 rounded-xl p-5 space-y-3">
-            <h3 className="text-blue-400 font-bold text-lg">📊 Analyse Ergebnis</h3>
+          <div className="mt-6 bg-blue-950/40 border border-blue-500/20 rounded-xl p-5 space-y-4">
+            <h3 className="text-blue-400 font-bold text-lg">📊 Echte STL-Analyse</h3>
+            
+            {/* Hauptmetriken */}
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="bg-black/30 rounded-xl p-3">
                 <p className="text-gray-500">Volumen</p>
-                <p className="font-bold text-white">{analysis.volume} cm³</p>
+                <p className="font-bold text-white">{(parseFloat(analysis.volume) / 1000).toFixed(2)} cm³</p>
               </div>
               <div className="bg-black/30 rounded-xl p-3">
                 <p className="text-gray-500">Gewicht</p>
@@ -232,13 +316,81 @@ export default function Upload() {
               </div>
               <div className="bg-black/30 rounded-xl p-3">
                 <p className="text-gray-500">Druckzeit</p>
-                <p className="font-bold text-white">{analysis.printHours} h</p>
+                <p className="font-bold text-white">{analysis.printTime.hours}h {analysis.printTime.minutes}min</p>
               </div>
               <div className="bg-black/30 rounded-xl p-3">
                 <p className="text-gray-500">Support</p>
-                <p className="font-bold text-white">{analysis.supportNeeded ? "Ja ⚠️" : "Nein ✓"}</p>
+                <p className="font-bold text-white">{analysis.supportAnalysis.needsSupport ? "Ja ⚠️" : "Nein ✓"}</p>
               </div>
             </div>
+
+            {/* Erweiterte Metriken */}
+            <div className="border-t border-blue-500/20 pt-3">
+              <p className="text-gray-400 text-xs mb-2 font-semibold">Erweiterte Geometrie-Analyse</p>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-black/20 rounded-lg p-2">
+                  <p className="text-gray-500">Oberfläche</p>
+                  <p className="font-bold text-white">{(parseFloat(analysis.surfaceArea) / 100).toFixed(2)} cm²</p>
+                </div>
+                <div className="bg-black/20 rounded-lg p-2">
+                  <p className="text-gray-500">Faces</p>
+                  <p className="font-bold text-white">{analysis.faceCount.toLocaleString()}</p>
+                </div>
+                <div className="bg-black/20 rounded-lg p-2">
+                  <p className="text-gray-500">Vertices</p>
+                  <p className="font-bold text-white">{analysis.vertexCount.toLocaleString()}</p>
+                </div>
+                <div className="bg-black/20 rounded-lg p-2">
+                  <p className="text-gray-500">Manifold</p>
+                  <p className="font-bold text-white">{analysis.isManifold ? "Ja ✓" : "Nein ⚠️"}</p>
+                </div>
+                <div className="bg-black/20 rounded-lg p-2">
+                  <p className="text-gray-500">Layers</p>
+                  <p className="font-bold text-white">{analysis.printTime.layers.toLocaleString()}</p>
+                </div>
+                <div className="bg-black/20 rounded-lg p-2">
+                  <p className="text-gray-500">Kritische Overhangs</p>
+                  <p className="font-bold text-white">{analysis.supportAnalysis.criticalOverhangs}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Support Details */}
+            {analysis.supportAnalysis.needsSupport && (
+              <div className="border-t border-blue-500/20 pt-3">
+                <p className="text-gray-400 text-xs mb-2 font-semibold">Support-Analyse</p>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="bg-black/20 rounded-lg p-2">
+                    <p className="text-gray-500">Overhang-Fläche</p>
+                    <p className="font-bold text-white">{analysis.supportAnalysis.overhangArea} cm²</p>
+                  </div>
+                  <div className="bg-black/20 rounded-lg p-2">
+                    <p className="text-gray-500">Support-Volumen</p>
+                    <p className="font-bold text-white">{analysis.supportAnalysis.supportVolume} cm³</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Bounding Box */}
+            <div className="border-t border-blue-500/20 pt-3">
+              <p className="text-gray-400 text-xs mb-2 font-semibold">Abmessungen (mm)</p>
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <div className="bg-black/20 rounded-lg p-2 text-center">
+                  <p className="text-gray-500">X</p>
+                  <p className="font-bold text-white">{analysis.dimensions.x} mm</p>
+                </div>
+                <div className="bg-black/20 rounded-lg p-2 text-center">
+                  <p className="text-gray-500">Y</p>
+                  <p className="font-bold text-white">{analysis.dimensions.y} mm</p>
+                </div>
+                <div className="bg-black/20 rounded-lg p-2 text-center">
+                  <p className="text-gray-500">Z</p>
+                  <p className="font-bold text-white">{analysis.dimensions.z} mm</p>
+                </div>
+              </div>
+            </div>
+
             <div className="border-t border-blue-500/20 pt-3 flex justify-between items-center">
               <span className="text-gray-400">Geschätzter Preis {menge > 1 ? `× ${menge}` : ""}</span>
               <span className="text-3xl font-black text-blue-400">{berechneterPreis} €</span>

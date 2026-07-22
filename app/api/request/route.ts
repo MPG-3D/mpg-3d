@@ -3,7 +3,7 @@ import { Resend } from "resend"
 import { prisma } from "@/prisma/lib/prisma"
 import { sendDiscordWebhook } from "@/lib/discord"
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 
 function calculateSTL(fileSize: number, material: string) {
   const estimatedVolume = fileSize / 120
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
       },
     })
 
-    if (process.env.RESEND_API_KEY) {
+    if (resend) {
       await resend.emails.send({
         from: "MPG-3D <noreply@mpg-3d.de>",
         to: email,
